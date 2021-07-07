@@ -241,7 +241,7 @@ func (g *Gateway) SendStatsFrame() error {
 
 // SendUplinkFrame sends the given uplink frame.
 func (g *Gateway) SendUplinkFrame(pl gw.UplinkFrame) error {
-	g.SendStatsFrame()
+	g.SendStatsFrame1()
 	uplinkID, err := uuid.NewV4()
 	if err != nil {
 		return errors.Wrap(err, "new uuid error")
