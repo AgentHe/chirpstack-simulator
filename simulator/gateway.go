@@ -212,8 +212,36 @@ func NewGateway(opts ...GatewayOption) (*Gateway, error) {
 	return gw, nil
 }
 
+// SendStatsFrame sends the given uplink frame.
+func (g *Gateway) SendStatsFrame() error {
+	id, err := uuid.NewV4()
+
+	stats := gw.GatewayStats{
+		GatewayId: g.gatewayID[:],
+		StatsId:   id[:],
+	}
+	b, err := proto.Marshal(&stats)
+	if err != nil {
+		return errors.Wrap(err, "send stats frame error")
+	}
+
+	statsTopic := g.getEventTopic("stats")
+
+	log.WithFields(log.Fields{
+		"gateway_id": g.gatewayID,
+		"topic":      statsTopic,
+	}).Debug("simulator: publish stats frame")
+
+	if token := g.mqtt.Publish(statsTopic, 0, false, b); token.Wait() && token.Error() != nil {
+		return errors.Wrap(err, "simulator: publish stats frame error")
+	}
+
+	return nil
+}
+
 // SendUplinkFrame sends the given uplink frame.
 func (g *Gateway) SendUplinkFrame(pl gw.UplinkFrame) error {
+	g.SendStatsFrame()
 	uplinkID, err := uuid.NewV4()
 	if err != nil {
 		return errors.Wrap(err, "new uuid error")
