@@ -99,7 +99,7 @@ type Device struct {
 	uplinkTXInfo gw.UplinkTXInfo
 
 	// Downlink handler function.
-	downlinkHandlerFunc func(confirmed, ack bool, fCntDown uint32, fPort uint8, data []byte) error
+	downlinkHandlerFunc func(confirmed, ack bool, fCntDown uint32, fPort uint8, data []byte, devEUI lorawan.EUI64) error
 
 	// OTAA delay.
 	otaaDelay time.Duration
@@ -194,7 +194,7 @@ func WithUplinkTXInfo(txInfo gw.UplinkTXInfo) DeviceOption {
 }
 
 // WithDownlinkHandlerFunc sets the downlink handler func.
-func WithDownlinkHandlerFunc(f func(confirmed, ack bool, fCntDown uint32, fPort uint8, data []byte) error) DeviceOption {
+func WithDownlinkHandlerFunc(f func(confirmed, ack bool, fCntDown uint32, fPort uint8, data []byte, devEUI lorawan.EUI64) error) DeviceOption {
 	return func(d *Device) error {
 		d.downlinkHandlerFunc = f
 		return nil
@@ -496,7 +496,7 @@ func (d *Device) downlinkData(phy lorawan.PHYPayload) error {
 		return nil
 	}
 
-	return d.downlinkHandlerFunc(phy.MHDR.MType == lorawan.ConfirmedDataDown, macPL.FHDR.FCtrl.ACK, d.fCntDown, fPort, data)
+	return d.downlinkHandlerFunc(phy.MHDR.MType == lorawan.ConfirmedDataDown, macPL.FHDR.FCtrl.ACK, d.fCntDown, fPort, data, d.devEUI)
 }
 
 // sendUplink sends

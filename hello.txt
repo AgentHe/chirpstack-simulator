@@ -1,0 +1,43 @@
+7d6
+< 	"encoding/hex"
+102c101
+< 	downlinkHandlerFunc func(confirmed, ack bool, fCntDown uint32, fPort uint8, data []byte) error
+---
+> 	downlinkHandlerFunc func(confirmed, ack bool, fCntDown uint32, fPort uint8, data []byte, devEUI lorawan.EUI64) error
+105a105,106
+> 
+> 	isTerminate bool
+197c198
+< func WithDownlinkHandlerFunc(f func(confirmed, ack bool, fCntDown uint32, fPort uint8, data []byte) error) DeviceOption {
+---
+> func WithDownlinkHandlerFunc(f func(confirmed, ack bool, fCntDown uint32, fPort uint8, data []byte, devEUI lorawan.EUI64) error) DeviceOption {
+259,261d259
+< 					// d.cancel() also cancels the downlink loop. Wait one
+< 					// second in order to process any potential downlink
+< 					// response (e.g. and ack).
+443a442
+> 			"err":     err,
+444a444
+> 			"key":     d.nwkSKey,
+451a452
+> 			"key":     d.nwkSKey,
+460a462,466
+> 	/*log.WithFields(log.Fields{
+> 		"dev_eui": d.devEUI,
+> 		"macPL":   macPL,
+> 	}).Info("MacPL")*/
+> 
+486,494d491
+< 	log.WithFields(log.Fields{
+< 		"confirmed": phy.MHDR.MType == lorawan.ConfirmedDataDown,
+< 		"ack":       macPL.FHDR.FCtrl.ACK,
+< 		"f_cnt":     d.fCntDown,
+< 		"dev_eui":   d.devEUI,
+< 		"f_port":    fPort,
+< 		"data":      hex.EncodeToString(data),
+< 	}).Info("simulator: device received downlink data")
+< 
+499c496
+< 	return d.downlinkHandlerFunc(phy.MHDR.MType == lorawan.ConfirmedDataDown, macPL.FHDR.FCtrl.ACK, d.fCntDown, fPort, data)
+---
+> 	return d.downlinkHandlerFunc(phy.MHDR.MType == lorawan.ConfirmedDataDown, macPL.FHDR.FCtrl.ACK, d.fCntDown, fPort, data, d.devEUI)
